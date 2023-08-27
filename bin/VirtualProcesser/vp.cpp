@@ -24,7 +24,7 @@ public:
 /* Macro */
 #define NEXT memory_[EIP++]
 #define THIS memory_[EIP]
-#define NEXT_REG THIS & 0xF0 ? (reinterpret_cast<void *>(&registers_[THIS & 0x0F]) + (NEXT & 0xF0) - 1) : &registers_[NEXT]
+#define NEXT_REG THIS & 0xF0 ? reinterpret_cast<uint16_t *>(reinterpret_cast<uint8_t *>(&registers_[THIS & 0x0F]) + (NEXT & 0xF0) - 1) : &registers_[NEXT]
 #define oper(total)                                                    \
     for (int i = 0; i < total; i++)                                    \
     op_type = NEXT,                                                    \
@@ -65,10 +65,9 @@ public:
         {
             uint16_t opcode = NEXT;
             uint16_t op_type;
-            void *operands[3];
+            uint16_t *operands[3];
 
             // cout << "- pc:" << EIP - 1 << endl;
-            #define OPERAND(i) reinterpret_cast<decltype(&operands[i])>(operands[i])
 
             switch (opcode)
             {
@@ -96,7 +95,7 @@ public:
                 // std::cout << "94:" << (NEXT & 0xF0) << endl;
                 // EIP -= 2;
                 oper(2);
-                *OPERAND(0) = *reinterpret_cast<decltype(&operands[1])>(operands[1]);
+                *operands[0] = *operands[1];
                 break;
             default:
                 std::cerr << "Invalid opcode: " << static_cast<int>(opcode) << " at " << EIP - 1 << std::endl;
