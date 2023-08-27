@@ -1,0 +1,19 @@
+; Sample 2:
+;     XOR Calculation
+; Date: 2022/12/30
+; Author: BernieHuang
+
+
+true 0001		; mem[0x0001]=true
+false 0002	; mem[0x0002]=false
+xor 0001 0002	; mem[0x0001]=mem[0x0001] xor mem[0x0002]
+mov 0003 0001	; mem[0x0003]=mem[0x0001] (default of mem[0x0003] is false)
+xor 0003 0002	; mem[0x0003]=mem[0x0003] xor mem[0x0002]
+
+print 'output:'
+ascii 0020
+out 0001
+out 0002
+out 0003
+
+end

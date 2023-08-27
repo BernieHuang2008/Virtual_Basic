@@ -1,0 +1,17 @@
+; Sample 4:
+;     Go Back
+; Date: 2023/1/1
+; Author: BernieHuang
+
+'1'
+'2'
+'3'
+'4'
+
+; reg_argu=32=0b0000000000100000
+true ffeb
+true 0001		; tag that I'v already jump once
+
+mov fff0 0001
+true fff1
+

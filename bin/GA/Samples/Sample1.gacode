@@ -1,0 +1,14 @@
+; Sample 1:
+;     Print "Hello,I am using G-Assemble!"
+; Date: 2022/12/30
+; Author: BernieHuang
+
+
+print 'Hello,I'	; print by keyword
+ascii 0020		; print by ascii
+'am'		; print by string
+ascii 0020
+print 'using G-Assemble!'
+
+end
+

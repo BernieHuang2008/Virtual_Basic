@@ -1,0 +1,65 @@
+; Sample 6:
+;     Calculator - Convert Binary to Dec
+; Date: 2023/1/1
+; Author: BernieHuang
+
+; input1 in 0x0001-0x0003
+; input2 in 0x0011-0x0013
+; output in 0x0021-0x0023
+
+
+print 'Please type a 3-bit Binary ... '
+ascii 0013		; ascii 0013='\n', new line.
+
+print '_ _ _'
+ascii 0008		; ascii 0008='\b', backspace.
+ascii 0008
+ascii 0008
+ascii 0008
+ascii 0008
+
+in 0001	; input a binary to mem[0x0001]
+out 0001	; it won't show the input unless you output it.
+ascii 0020
+
+in 0002	; input a binary to mem[0x0002]
+out 0002
+ascii 0020
+
+in 0003	; input a binary to mem[0x0003]
+out 0003
+
+print 'Please type another 3-bit Binary ... '
+ascii 0013	
+
+print '_ _ _'
+ascii 0008	
+ascii 0008
+ascii 0008
+ascii 0008
+ascii 0008
+
+in 0011
+out 0011
+ascii 0020
+
+in 0012
+out 0012
+ascii 0020
+
+in 0013
+out 0013
+
+
+
+
+
+ascii 0013
+print 'Your Input is: '
+
+
+out 0001	; print mem[0x0001]
+out 0002	; print mem[0x0001]
+out 0003	; print mem[0x0001]
+
+end

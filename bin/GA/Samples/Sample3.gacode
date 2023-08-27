@@ -1,0 +1,16 @@
+; Sample 3:
+;     Input
+; Date: 2022/12/30
+; Author: BernieHuang
+
+
+print 'Please type a Binary... ( but it wont show on the screen ): '
+
+in 0001	; input a binary to mem[0x0001]
+
+ascii 0013
+print 'Your Input is: '
+
+out 0001	; print mem[0x0001]
+
+end
