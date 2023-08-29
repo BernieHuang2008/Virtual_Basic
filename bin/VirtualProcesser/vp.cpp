@@ -119,7 +119,7 @@ public:
         int segment_addr = memory_[int_start] * 256 + memory_[int_start + 1];
         int offset_addr = memory_[int_start + 2] * 256 + memory_[int_start + 3];
         int int_addr = segment_addr * 256 + offset_addr;
-        EIP = int_addr;
+        // EIP = int_addr;
 
         switch (interrupt)
         {

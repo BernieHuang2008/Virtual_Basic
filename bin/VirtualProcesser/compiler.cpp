@@ -15,14 +15,6 @@ enum Instructions
     INT = 0x06,
     JMP = 0x07
 };
-// #define HLT 0x00
-// #define NOT 0x01
-// #define XOR 0x02
-// #define OR 0x03
-// #define AND 0x04
-// #define MOV 0x05
-// #define INT 0x06
-// #define JMP 0x07
 
 map<string, int> opcodes = {
     {"NOT", NOT},
@@ -77,6 +69,8 @@ uint8_t get_operand_type(string operand)
         return 0x02;
     if (registers.find(operand) != registers.end()) // register
         return 0x01;
+    if (operand.find(":") != string::npos) // segment(reg) + offset
+        return 0x04;
     if (todec(operand) <= 0xff) // short immidiate
         return 0x00;
     else // immidiate 16 bit
@@ -97,6 +91,8 @@ uint16_t tochar(string operand)
         return tochar(operand);
     case 0x03: // immidiate 16 bit
         return todec(operand);
+    case 0x04: // segment + offset
+        return tochar(operand.substr(0, operand.find(":"))) * 256 + tochar(operand.substr(operand.find(":") + 1));
     default:
         cerr << "Invalid operand type: " << type << endl;
         return 0x00;
@@ -107,7 +103,9 @@ uint16_t tochar(string operand)
     for (int i = 1; i <= total; i++)                                                \
     {                                                                               \
         uint16_t optype = get_operand_type(operand[i]), opval = tochar(operand[i]); \
-        if (optype & 0xF == 0x03)                                                   \
+        if (optype == 0x03)                                                   \
+            printf("%c%c%c", optype, opval >> 8, opval);                            \
+        else if (optype == 0x04)                                              \
             printf("%c%c%c", optype, opval >> 8, opval);                            \
         else                                                                        \
             printf("%c%c", optype, opval);                                          \
