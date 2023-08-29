@@ -17,6 +17,7 @@ enum Instructions
     AND = 0x04,
     MOV = 0x05,
     INT = 0x06,
+    JMP = 0x07,
 };
 
 class VirtualProcessor
@@ -25,14 +26,15 @@ public:
 /* Macro */
 #define NEXT memory_[EIP++]
 #define THIS memory_[EIP]
-#define NEXT_REG THIS & 0xF0 ? reinterpret_cast<uint16_t *>(reinterpret_cast<uint8_t *>(&registers_[THIS & 0x0F]) + (NEXT & 0xF0) - 1) : &registers_[NEXT]
-#define oper(total)                                                    \
-    for (int i = 0; i < total; i++)                                    \
-    op_type = NEXT,                                                    \
-    operands[i] = (op_type == 0x00   ? &NEXT                           \
-                   : op_type == 0x01 ? NEXT_REG                        \
-                   : op_type == 0x02 ? &memory_[BP * 256 + NEXT]       \
-                   : op_type == 0x03 ? new uint16_t(NEXT * 256 + NEXT) \
+#define NEXT_REG THIS & 0xF0 ? (reinterpret_cast<uint8_t *>(&registers_[THIS & 0x0F]) + (NEXT & 0xF0) - 1) : &registers_[NEXT]
+#define oper(total)                                                               \
+    for (int i = 0; i < total; i++)                                               \
+    op_type = NEXT,                                                               \
+    operands[i] = (op_type == 0x00   ? &NEXT                                      \
+                   : op_type == 0x01 ? NEXT_REG                                   \
+                   : op_type == 0x02 ? &memory_[BP * 256 + NEXT]                  \
+                   : op_type == 0x03 ? new uint8_t(NEXT * 256 + NEXT)             \
+                   : op_type == 0x04 ? new uint8_t(registers_[NEXT] * 256 + NEXT) \
                                      : nullptr)
 
     /* ===== Macro END ===== */
@@ -64,9 +66,9 @@ public:
         EIP = entrance;
         while (true)
         {
-            uint16_t opcode = NEXT;
-            uint16_t op_type;
-            uint16_t *operands[3];
+            uint8_t opcode = NEXT;
+            uint8_t op_type;
+            uint8_t *operands[3];
 
             // cout << "- pc:" << EIP - 1 << endl;
 
@@ -97,11 +99,11 @@ public:
                 break;
             case INT:
                 oper(1);
-                int ivt_start = 0xC800;
-                int int_start = ivt_start + (*operands[0]) * 4;
-                int segment_addr = memory_[int_start] * 256 + memory_[int_start + 1];
-                int offset_addr = memory_[int_start + 2] * 256 + memory_[int_start + 3];
-                // EIP TODO ...
+                process_interrupt(*operands[0]);
+                break;
+            case JMP:
+                oper(1);
+                EIP = BP * 256 + (*operands[0]);
                 break;
             default:
                 std::cerr << "Invalid opcode: " << static_cast<int>(opcode) << " at " << EIP - 1 << std::endl;
@@ -110,7 +112,36 @@ public:
         }
     }
 
+    void process_interrupt(uint8_t interrupt)
+    {
+        int ivt_start = 0xC800;
+        int int_start = ivt_start + interrupt * 4;
+        int segment_addr = memory_[int_start] * 256 + memory_[int_start + 1];
+        int offset_addr = memory_[int_start + 2] * 256 + memory_[int_start + 3];
+        int int_addr = segment_addr * 256 + offset_addr;
+        EIP = int_addr;
+
+        switch (interrupt)
+        {
+        case 0x21:
+            print_CGA();
+            break;
+        default:
+            std::cerr << "Invalid interrupt: " << static_cast<int>(interrupt) << " at " << EIP - 1 << std::endl;
+            return;
+        }
+    }
+
     void print_CGA()
+    {
+        system("cls"); // clear screen
+        for (int i = 0xA000; i < 0xBFFF; i++)
+        {
+            std::cout << static_cast<char>(memory_[i]);
+        }
+    }
+
+    void dbg_print_CGA()
     {
         std::cout << "------- CGA -------\n";
         for (int i = 0xA000; i < 0xBFFF; i++)
@@ -154,8 +185,8 @@ public:
     }
 
 private:
-    uint16_t registers_[16];
-    uint16_t memory_[65536];
+    uint8_t registers_[16];
+    uint8_t memory_[65536];
 };
 
 int main()
@@ -179,7 +210,7 @@ int main()
     VirtualProcessor vp;
     vp.LoadProgram(0, program, size);
     vp.Run(0);
-    vp.print_CGA();
-    vp.dbg_print_reg();
+    // vp.dbg_print_CGA();
+    // vp.dbg_print_reg();
     return 0;
 }

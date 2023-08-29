@@ -4,12 +4,25 @@
 #include <algorithm>
 using namespace std;
 
-#define HLT 0x00
-#define NOT 0x01
-#define XOR 0x02
-#define OR 0x03
-#define AND 0x04
-#define MOV 0x05
+enum Instructions
+{
+    HLT = 0x00,
+    NOT = 0x01,
+    XOR = 0x02,
+    OR = 0x03,
+    AND = 0x04,
+    MOV = 0x05,
+    INT = 0x06,
+    JMP = 0x07
+};
+// #define HLT 0x00
+// #define NOT 0x01
+// #define XOR 0x02
+// #define OR 0x03
+// #define AND 0x04
+// #define MOV 0x05
+// #define INT 0x06
+// #define JMP 0x07
 
 map<string, int> opcodes = {
     {"NOT", NOT},
@@ -17,7 +30,11 @@ map<string, int> opcodes = {
     {"OR", OR},
     {"AND", AND},
     {"MOV", MOV},
-};
+    {"INT", INT},
+    {"JMP", JMP}};
+
+int operand_num[] = {0, 1, 2, 2, 2, 2, 1, 1};
+
 map<string, char> registers = {
     {"AX", 0x00},
     {"BX", 0x01},
@@ -77,7 +94,7 @@ uint16_t tochar(string operand)
         return registers[operand];
     case 0x02: // memory
         operand = operand.substr(1, operand.length() - 2);
-        return todec(operand);
+        return tochar(operand);
     case 0x03: // immidiate 16 bit
         return todec(operand);
     default:
@@ -90,7 +107,7 @@ uint16_t tochar(string operand)
     for (int i = 1; i <= total; i++)                                                \
     {                                                                               \
         uint16_t optype = get_operand_type(operand[i]), opval = tochar(operand[i]); \
-        if (optype == 0x03)                                                         \
+        if (optype & 0xF == 0x03)                                                   \
             printf("%c%c%c", optype, opval >> 8, opval);                            \
         else                                                                        \
             printf("%c%c", optype, opval);                                          \
@@ -131,29 +148,9 @@ int main(int argc, char *argv[])
 
         // opcode
         string opcode = operand[0];
-
         cout << (char)opcodes[opcode];
-
-        switch (opcodes[opcode])
-        {
-        case NOT:
-            OPERAND(1);
-            break;
-        case XOR:
-            OPERAND(2);
-            break;
-        case OR:
-            OPERAND(2);
-            break;
-        case AND:
-            OPERAND(2);
-            break;
-        case MOV:
-            OPERAND(2);
-            break;
-        default:
-            break;
-        }
+        // operands
+        OPERAND(operand_num[opcodes[opcode]]);
     } // end while
 
     cout << (char)HLT;
