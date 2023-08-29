@@ -16,6 +16,7 @@ enum Instructions
     OR = 0x03,
     AND = 0x04,
     MOV = 0x05,
+    INT = 0x06,
 };
 
 class VirtualProcessor
@@ -91,11 +92,16 @@ public:
                 *operands[0] &= *operands[1];
                 break;
             case MOV:
-                // NEXT;
-                // std::cout << "94:" << (NEXT & 0xF0) << endl;
-                // EIP -= 2;
                 oper(2);
                 *operands[0] = *operands[1];
+                break;
+            case INT:
+                oper(1);
+                int ivt_start = 0xC800;
+                int int_start = ivt_start + (*operands[0]) * 4;
+                int segment_addr = memory_[int_start] * 256 + memory_[int_start + 1];
+                int offset_addr = memory_[int_start + 2] * 256 + memory_[int_start + 3];
+                // EIP TODO ...
                 break;
             default:
                 std::cerr << "Invalid opcode: " << static_cast<int>(opcode) << " at " << EIP - 1 << std::endl;
